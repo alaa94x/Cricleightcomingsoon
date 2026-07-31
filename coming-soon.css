@@ -1,0 +1,38 @@
+/* Page-specific readability refinements for the standalone launch page. */
+.coming-mobile-contact { display: none; }
+
+@media (max-width: 760px) {
+  .coming-content .eyebrow { font-size: 11px; }
+  .coming-kicker { font-size: 11px; letter-spacing: 1px; }
+  .coming-copy { font-size: 16px; line-height: 1.85; }
+  .coming-content { min-height: 486px; padding-bottom: 36px; }
+  .coming-content h1 { margin-bottom: 15px; }
+  .coming-hub { margin-top: 28px; }
+  .coming-hub strong { font-size: 14px; }
+  .coming-hub small { font-size: 12px; }
+  .coming-mobile-contact {
+    width: 100%; min-height: 50px; margin-top: 25px;
+    display: inline-flex; align-items: center; justify-content: space-between;
+    padding: 13px 17px; border-radius: 8px;
+    background: #fff; color: #171127;
+    font-size: 15px; font-weight: 700;
+    box-shadow: 0 10px 26px rgba(0,0,0,.16);
+  }
+  .coming-mobile-contact b { color: var(--purple); font-size: 19px; font-weight: 500; }
+
+  .contact-panel {
+    margin-top: -1px; padding: 42px 24px 32px;
+    border-top: 1px solid rgba(128,84,216,.16);
+    box-shadow: 0 -12px 34px rgba(20,12,50,.04);
+  }
+  .contact-panel-head { font-size: 11px; }
+  .contact-panel h2 { margin: 32px 0 18px; font-size: 39px; line-height: 1.22; letter-spacing: -1px; }
+  html[dir="rtl"] .contact-panel h2 { letter-spacing: 0; }
+  .contact-panel > p { font-size: 16px; line-height: 1.9; }
+  .contact-methods { padding-top: 30px; }
+  .contact-method { gap: 13px; padding-top: 18px; padding-bottom: 18px; }
+  .contact-icon { flex-basis: 40px; width: 40px; height: 40px; border-radius: 11px; }
+  .contact-method .method-content > span { font-size: 11px; }
+  .contact-method strong { font-size: 17px; }
+  .contact-panel-foot { padding-top: 24px; font-size: 10px; }
+}
