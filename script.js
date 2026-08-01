@@ -50,13 +50,14 @@ const translations = {
     contactTitle: 'Let\u2019s move<br /><em>forward.</em>',
     contactCopy: 'Tell us a little about where you are heading. We will be in touch soon.',
     formName: 'Your name', formEmail: 'Email address', formCompany: 'Company',
-    formMessage: 'What can we help move?', formSubmit: 'Send message <b>↗</b>',
-    formNote: 'Demo form — email connection will be added at launch.',
+    formMessage: 'What can we help move?', formSubmit: 'Continue by email <b>↗</b>',
+    formNote: 'Your email app will open with a ready-to-send message.',
+    directContact: 'Direct contact', footerCall: 'Call', footerWhatsApp: 'WhatsApp',
     comingEyebrow: 'Coming soon',
-    comingTitle: 'A new hub<br /><em>is taking shape.</em>',
-    comingCopy: 'Our website is currently being built. While it comes together, we would love to hear from you.',
+    comingTitle: 'Our new website<br /><em>is coming soon.</em>',
+    comingCopy: 'We’re building a new digital home for Circleight. Until it launches, our team is here to hear from you.',
     comingCta: 'Get in touch <b>↗</b>',
-    comingKicker: 'WE’RE BUILDING CIRCLEIGHT',
+    comingKicker: 'OUR NEW WEBSITE IS ON ITS WAY',
     comingHub: 'Launching soon from Doha',
     comingContactLabel: 'Connect with Circleight',
     comingContactTitle: 'Want to shape<br />what comes <em>next?</em>',
@@ -115,8 +116,9 @@ const translations = {
     contactTitle: 'لنمضِ<br /><em>قُدمًا.</em>',
     contactCopy: 'أخبرنا قليلًا عن وجهتك. سنتواصل معك قريبًا.',
     formName: 'الاسم', formEmail: 'البريد الإلكتروني', formCompany: 'الشركة',
-    formMessage: 'كيف يمكننا مساعدتك في التحرك؟', formSubmit: 'أرسل الرسالة <b>↗</b>',
-    formNote: 'نموذج تجريبي - سيتم ربط البريد الإلكتروني عند الإطلاق.',
+    formMessage: 'كيف يمكننا مساعدتك في التحرك؟', formSubmit: 'المتابعة عبر البريد <b>↗</b>',
+    formNote: 'سيفتح تطبيق بريدك برسالة جاهزة للإرسال.',
+    directContact: 'تواصل مباشر', footerCall: 'اتصل بنا', footerWhatsApp: 'واتساب',
     comingEyebrow: 'قريبًا',
     comingTitle: 'موقعنا<br /><em>قيد الإنشاء.</em>',
     comingCopy: 'نعمل حاليًا على بناء تجربة سيركلايت. وإلى أن نطلقها، يسعدنا أن نسمع منك.',
@@ -146,6 +148,18 @@ function setLanguage(lang) {
       label.classList.toggle('selected', lang === 'ar' ? index === 0 : index === 1);
     });
   });
+  document.querySelectorAll('.footer-phone a[href^="tel:"]').forEach(link => {
+    link.title = lang === 'ar' ? 'اتصل بنا' : 'Call us';
+    if (link.lastChild?.nodeType === Node.TEXT_NODE) link.lastChild.nodeValue = ` ${dict.footerCall}`;
+  });
+  document.querySelectorAll('.footer-phone a[href*="wa.me"]').forEach(link => {
+    link.title = lang === 'ar' ? 'واتساب' : 'WhatsApp us';
+    if (link.lastChild?.nodeType === Node.TEXT_NODE) link.lastChild.nodeValue = ` ${dict.footerWhatsApp}`;
+  });
+  document.querySelectorAll('a[href^="mailto:"]').forEach(link => {
+    link.href = 'mailto:we@circleight.com';
+    if (link.textContent.trim().toLowerCase() === 'we@circleight.com') link.textContent = 'we@circleight.com';
+  });
   localStorage.setItem('circleight-language', lang);
 }
 
@@ -160,21 +174,39 @@ document.querySelectorAll('.language-switch').forEach(button =>
   )
 );
 
-// Mobile menu toggle
-const menuToggle = document.getElementById('menu-toggle');
-const mainNav = document.getElementById('main-nav');
-if (menuToggle && mainNav) {
+// Mobile menu toggle — works consistently on every page.
+document.querySelectorAll('.site-header').forEach(header => {
+  const menuToggle = header.querySelector('.menu-toggle');
+  const mainNav = header.querySelector('.nav-links');
+  if (!menuToggle || !mainNav) return;
+
+  menuToggle.setAttribute('aria-expanded', 'false');
+  menuToggle.setAttribute('aria-label', 'Open menu');
   menuToggle.addEventListener('click', () => {
     const isOpen = mainNav.classList.toggle('open');
-    menuToggle.setAttribute('aria-expanded', isOpen);
+    menuToggle.setAttribute('aria-expanded', String(isOpen));
+    menuToggle.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
     menuToggle.textContent = isOpen ? '✕' : '☰';
   });
-}
+});
 
 // Contact form
 document.querySelector('#contact-form')?.addEventListener('submit', event => {
   event.preventDefault();
   const ar = document.documentElement.lang === 'ar';
-  event.currentTarget.reset();
-  alert(ar ? 'شكرًا لك. تم استلام رسالتك.' : 'Thank you. Your message has been received.');
+  const form = event.currentTarget;
+  const name = form.elements.name.value.trim();
+  const email = form.elements.email.value.trim();
+  const company = form.elements.company.value.trim();
+  const message = form.elements.message.value.trim();
+  const subject = ar ? `رسالة جديدة من ${name}` : `New message from ${name}`;
+  const body = [
+    `${ar ? 'الاسم' : 'Name'}: ${name}`,
+    `${ar ? 'البريد الإلكتروني' : 'Email'}: ${email}`,
+    `${ar ? 'الشركة' : 'Company'}: ${company || '—'}`,
+    '',
+    `${ar ? 'الرسالة' : 'Message'}:`,
+    message
+  ].join('\n');
+  window.location.href = `mailto:we@circleight.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 });

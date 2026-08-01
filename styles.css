@@ -25,6 +25,15 @@ body  { margin: 0; background: var(--paper); color: var(--ink);
 a     { text-decoration: none; color: inherit; }
 img   { display: block; max-width: 100%; }
 
+/* Reuse the supplied WhatsApp mark wherever a WhatsApp link appears. */
+a[href*="wa.me"] { display: inline-flex; align-items: center; gap: 5px; }
+a[href*="wa.me"] > svg { display: none; }
+a[href*="wa.me"]::before {
+  content: ""; width: 15px; height: 15px; flex: 0 0 15px;
+  background: url("whatsapp-svgrepo-com.svg") center / contain no-repeat;
+}
+.contact-method[href*="wa.me"]::before { display: none; }
+
 /* ---------- Noise overlay ---------- */
 .noise {
   position: fixed; inset: 0; pointer-events: none; z-index: 999;
@@ -347,7 +356,8 @@ img   { display: block; max-width: 100%; }
 .doha-hub strong { display: block; color: #fff; font: 700 16px var(--font-sans); letter-spacing: .4px; }
 .doha-hub small { display: block; margin-top: 3px; color: rgba(232,226,255,.64); font: 500 9px var(--font-mono); }
 @media (prefers-reduced-motion: reduce) {
-  .corridor { animation: none; }
+  .corridor, .node-ring, .route-path-main, .route-path-dash, .moving-dot,
+  .float-card, .panel-city { animation: none !important; }
 }
 
 /* Animated main path */
@@ -660,7 +670,7 @@ h2 em { font-style: normal; color: var(--purple); }
   border-radius: 8px;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  transition: all .4s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background .4s cubic-bezier(0.16, 1, 0.3, 1), border-color .4s cubic-bezier(0.16, 1, 0.3, 1), transform .4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow .4s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
 }
 .capability::before {
@@ -711,7 +721,7 @@ h2 em { font-style: normal; color: var(--purple); }
   background: rgba(128,84,216,.08);
   display: flex; align-items: center; justify-content: center;
   font-size: 18px; color: var(--purple);
-  transition: all .3s;
+  transition: background .3s, color .3s, transform .3s;
 }
 .capability:hover > a { background: var(--purple); color: #fff; transform: scale(1.1); }
 .capability-dark > a { background: rgba(189,166,255,.1); color: #bda6ff; }
@@ -976,11 +986,15 @@ h2 em { font-style: normal; color: var(--purple); }
 .contact-direct strong { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--purple); font-family: var(--font-mono); margin-bottom: 8px; }
 .contact-direct > a { font-size: 17px; font-weight: 600; color: var(--ink); text-decoration: none; }
 .contact-direct > a:hover { color: var(--purple); }
-.contact-direct .direct-phone { font-size: 15px; font-family: var(--font-mono); color: var(--muted); display: flex; align-items: center; gap: 12px; margin-top: 4px; }
+.contact-direct .direct-phone {
+  font-size: 15px; font-family: var(--font-mono); color: var(--muted);
+  display: flex; align-items: center; gap: 12px; margin-top: 4px;
+  direction: ltr; unicode-bidi: isolate;
+}
 .contact-direct .direct-phone a {
   background: rgba(128,84,216,.08); color: var(--purple); font-family: var(--font-main);
   padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none;
-  transition: all .2s; border: 1px solid rgba(128,84,216,.2); line-height: 1; display: inline-flex; justify-content: center; align-items: center; width: 28px; height: 28px;
+  transition: background .2s, color .2s, transform .2s; border: 1px solid rgba(128,84,216,.2); line-height: 1; display: inline-flex; justify-content: center; align-items: center; width: 28px; height: 28px;
 }
 .contact-direct .direct-phone a:hover { background: var(--purple); color: #fff; transform: translateY(-2px); }
 
@@ -1007,7 +1021,7 @@ input, textarea {
   border: 1px solid rgba(170,152,220,.4);
   border-radius: 6px;
   outline: none; padding: 14px 16px; resize: vertical; color: var(--ink);
-  transition: all .2s;
+  transition: border-color .2s, box-shadow .2s;
 }
 input:focus, textarea:focus { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(128,84,216,.1); }
 form .button { margin-top: 12px; width: 100%; justify-content: center; }
@@ -1129,9 +1143,11 @@ html[dir="rtl"] .coming-main h1 { font-size: clamp(58px, 9vw, 140px); line-heigh
   .nav-links.open {
     display: flex; flex-direction: column;
     position: fixed; inset: 0; background: var(--paper);
-    z-index: 100; padding: 30px 7vw;
+    z-index: 100; padding: 96px 7vw 30px;
     font-size: 18px; gap: 20px;
   }
+  .menu-toggle { position: relative; z-index: 101; }
+  .menu-toggle:active, .button:active { transform: scale(.97); }
 
   /* Hero mobile — stack panels vertically */
   .hero {
@@ -1463,7 +1479,7 @@ html[dir="rtl"] .coming-main h1 { font-size: clamp(58px, 9vw, 140px); line-heigh
 .contact-panel-head { font-size: 12px; font-weight: 600; }.contact-panel-head span { width: 28px; height: 28px; }
 .contact-panel h2 { margin: 44px 0 22px; font-size: clamp(38px, 3.5vw, 54px); font-weight: 700; line-height: 1.1; }
 .contact-panel > p { font-size: 17px; line-height: 1.8; font-weight: 500; color: #596176; }
-.contact-methods { padding-top: 42px; }.contact-method { display: flex; align-items: center; gap: 15px; padding: 20px 32px 20px 0; }.method-content { flex: 1; min-width: 0; }.contact-method .method-content > span { display: block; color: #756e85; font: 600 11px var(--font-mono); letter-spacing: .8px; text-transform: uppercase; }.contact-method strong { margin-top: 7px; font-size: 17px; font-weight: 700; color: var(--ink); }.contact-method i { font-size: 21px; }.contact-icon { flex: 0 0 42px; width: 42px; height: 42px; border-radius: 12px; display: inline-flex !important; align-items: center; justify-content: center; background: rgba(128,84,216,.1); color: var(--purple); }.contact-icon svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }.contact-icon-whatsapp { background: rgba(117,82,209,.14); }
+.contact-methods { padding-top: 42px; }.contact-method { display: flex; align-items: center; gap: 15px; padding: 20px 32px 20px 0; }.method-content { flex: 1; min-width: 0; }.contact-method .method-content > span { display: block; color: #756e85; font: 600 11px var(--font-mono); letter-spacing: .8px; text-transform: uppercase; }.contact-method strong { margin-top: 7px; font-size: 17px; font-weight: 700; color: var(--ink); }.contact-method i { font-size: 21px; }.contact-icon { flex: 0 0 42px; width: 42px; height: 42px; border-radius: 12px; display: inline-flex !important; align-items: center; justify-content: center; background: rgba(128,84,216,.1); color: var(--purple); }.contact-icon svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }.contact-icon img { width: 21px; height: 21px; object-fit: contain; }.contact-icon-whatsapp { background: rgba(117,82,209,.14); }
 html[dir="rtl"] .contact-method { padding: 20px 0 20px 32px; }.contact-method .method-content > span { font-family: "IBM Plex Sans Arabic", var(--font-sans); letter-spacing: 0; }.contact-panel-foot { font-family: "IBM Plex Sans Arabic", var(--font-sans); letter-spacing: 0; }
 html[dir="rtl"] .coming-content, html[dir="rtl"] .contact-panel { font-family: "IBM Plex Sans Arabic", var(--font-sans); }html[dir="rtl"] .coming-content h1 { letter-spacing: 0; line-height: 1.2; }html[dir="rtl"] .coming-kicker { letter-spacing: 0; font-family: "IBM Plex Sans Arabic", var(--font-sans); }html[dir="rtl"] .contact-panel-head, html[dir="rtl"] .contact-method span, html[dir="rtl"] .contact-panel-foot { letter-spacing: 0; font-family: "IBM Plex Sans Arabic", var(--font-sans); }html[dir="rtl"] .contact-method { padding: 16px 0 16px 28px; }html[dir="rtl"] .contact-method i { right: auto; left: 0; }
 @media (max-width: 760px) { .coming-header { border-bottom-color: rgba(189,166,255,.15); }.coming-stage { width: 100%; min-height: calc(100vh - 72px); margin: 0; display: flex; flex-direction: column; border: 0; border-radius: 0; }.coming-content { padding: 58px 24px 48px; min-height: 520px; }.coming-content h1 { font-size: clamp(48px, 14vw, 64px); letter-spacing: -3px; line-height: .92; }.coming-copy { font-size: 14px; max-width: 330px; }.coming-kicker { margin-top: 20px; font-size: 9px; }.coming-hub { margin-top: 38px; }.coming-routes { left: 5%; right: 0; bottom: 36%; height: 28%; opacity: .52; }.contact-panel { padding: 34px 24px 28px; }.contact-panel h2 { margin-top: 30px; font-size: 34px; }.contact-methods { padding-top: 24px; }.contact-panel-foot { padding-top: 22px; }html[dir="rtl"] .coming-content h1 { font-size: clamp(42px, 13vw, 57px); line-height: 1.26; } }
