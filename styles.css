@@ -342,7 +342,7 @@ a[href*="wa.me"]::before {
   font: 500 10px var(--font-mono);
   letter-spacing: .8px;
 }
-.doha-hub {
+.Qatar-hub {
   position: absolute; z-index: 4;
   left: 60%; top: 52%; transform: translate(-50%, -50%);
   min-width: 138px; padding: 12px 16px;
@@ -353,8 +353,8 @@ a[href*="wa.me"]::before {
   box-shadow: 0 16px 34px rgba(0,0,0,.28);
   backdrop-filter: blur(12px);
 }
-.doha-hub strong { display: block; color: #fff; font: 700 16px var(--font-sans); letter-spacing: .4px; }
-.doha-hub small { display: block; margin-top: 3px; color: rgba(232,226,255,.64); font: 500 9px var(--font-mono); }
+.Qatar-hub strong { display: block; color: #fff; font: 700 16px var(--font-sans); letter-spacing: .4px; }
+.Qatar-hub small { display: block; margin-top: 3px; color: rgba(232,226,255,.64); font: 500 9px var(--font-mono); }
 @media (prefers-reduced-motion: reduce) {
   .corridor, .node-ring, .route-path-main, .route-path-dash, .moving-dot,
   .float-card, .panel-city { animation: none !important; }
@@ -1319,9 +1319,9 @@ html[dir="rtl"] .coming-main h1 { font-size: clamp(58px, 9vw, 140px); line-heigh
   .panel-index { width: 20px; height: 20px; font-size: 8px; }
   .panel-route { min-height: 226px; }
   .panel-route svg { width: 114%; height: 114%; inset: -7% -7%; }
-  .doha-hub { min-width: 118px; padding: 9px 11px; }
-  .doha-hub strong { font-size: 14px; }
-  .doha-hub small { font-size: 8px; }
+  .Qatar-hub { min-width: 118px; padding: 9px 11px; }
+  .Qatar-hub strong { font-size: 14px; }
+  .Qatar-hub small { font-size: 8px; }
   .panel-city {
     padding: 8px 10px;
     border-radius: 8px;
@@ -1417,7 +1417,7 @@ html[dir="rtl"] .coming-main h1 { font-size: clamp(58px, 9vw, 140px); line-heigh
   }
   .panel-route { min-height: 188px; }
   .panel-route svg { width: 110%; height: 110%; inset: -5%; }
-  .doha-hub { min-width: 110px; padding: 8px 10px; }
+  .Qatar-hub { min-width: 110px; padding: 8px 10px; }
   .world-labels text { font-size: 8px; letter-spacing: .3px; }
   .panel-caption { min-height: 58px; padding-block: 11px; align-items: flex-start; font-size: 10px; line-height: 1.5; }
   .panel-caption i { display: none; }
