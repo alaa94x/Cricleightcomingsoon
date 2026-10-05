@@ -2949,6 +2949,7 @@ function supaBackend(c){
   /* POST uses return=minimal on purpose: returning the inserted row needs SELECT rights,
      and the leads table is intentionally insert-only (visitor contacts stay unreadable). */
   const HPOST=Object.assign({},H,{Prefer:'return=minimal'});
+  const HDEL=Object.assign({},H,{Prefer:'return=representation'});
   const T=n=>(c.tables&&c.tables[n])||n;
   async function req(path,opt){opt=opt||{};const r=await fetch(base+path,Object.assign({},opt,{headers:opt.headers||H}));
     if(!r.ok){const e=new Error('supabase '+r.status+' '+(await r.text().catch(()=>'')));e.status=r.status;throw e}
@@ -2961,7 +2962,10 @@ function supaBackend(c){
       limit(n){lim=n;return api},
       async get(){const q=['select=id,data','order='+(ord||'id.asc')].concat(lim?['limit='+lim]:[]).join('&');
         const rows=await req(tb+'?'+q)||[];return {size:rows.length,docs:rows.map(wrap)}},
-      doc:id=>({delete:()=>req(tb+'?id=eq.'+encodeURIComponent(id),{method:'DELETE'})}),
+      /* RLS filters a forbidden DELETE into a silent 204 with zero rows, so ask for the
+         deleted rows back and treat an empty result as a failure the caller can report. */
+      doc:id=>({async delete(){const rows=await req(tb+'?id=eq.'+encodeURIComponent(id),{method:'DELETE',headers:HDEL});
+        if(!rows||!rows.length){const e=new Error('delete blocked by row-level security');e.blocked=true;throw e}}}),
       onSnapshot(cb,err){let seen=new Map(),stop=false,fails=0;
         const poll=async()=>{if(stop)return;
           try{const rows=await req(tb+'?select=id,data&order=id.asc&limit=1000')||[];fails=0;
@@ -3893,7 +3897,7 @@ async function staff(){const d=await CORE.db();const c=$('k-staffc');$('k-staff'
   const rs=await d.collection('routes').orderBy('at','desc').limit(20).get();let leads=null;try{leads=await d.collection('leads').get()}catch(e){}
   c.innerHTML='<h2>إعدادات الفريق · Staff</h2><div class="grp"><b>آخر المسارات (لحذف مسار غير مناسب)</b><div class="k-list" id="k-rl"></div></div><div class="grp"><b>العملاء المحتملون: '+(leads?leads.size:'—')+'</b>'+(leads?'<div class="plist"><button class="mini" id="k-csv" type="button">تنزيل CSV</button></div>':'<div class="sub">قائمة العملاء محمية ولا تُقرأ من هذه الشاشة. صدّرها من لوحة تحكم قاعدة البيانات.</div>')+'</div><div class="row"><button class="btn" id="k-close" type="button">إغلاق</button></div>';
   const rl=$('k-rl');rs.docs.forEach(doc=>{const r=doc.data();const row=document.createElement('div');row.innerHTML='<span>'+esc(r.fn)+' → '+esc(r.tn)+' · '+esc(r.mode)+(r.company?' · '+esc(r.company):'')+'</span>';const b=document.createElement('button');b.className='mini';b.type='button';b.textContent='حذف';
-    b.addEventListener('click',async()=>{if(b.dataset.arm){try{await d.collection('routes').doc(doc.id).delete();row.remove()}catch(e){CORE.toast('تعذّر الحذف')}}else{b.dataset.arm=1;b.textContent='أكّد الحذف';setTimeout(()=>{delete b.dataset.arm;b.textContent='حذف'},3000)}});row.appendChild(b);rl.appendChild(row)});
+    b.addEventListener('click',async()=>{if(b.dataset.arm){try{await d.collection('routes').doc(doc.id).delete();row.remove()}catch(e){CORE.toast(e&&e.blocked?'الحذف غير مسموح في قاعدة البيانات — احذفه من لوحة Supabase':'تعذّر الحذف');b.textContent='حذف';delete b.dataset.arm}}else{b.dataset.arm=1;b.textContent='أكّد الحذف';setTimeout(()=>{delete b.dataset.arm;b.textContent='حذف'},3000)}});row.appendChild(b);rl.appendChild(row)});
   $('k-close').addEventListener('click',()=>$('k-staff').hidden=true);
   const csvBtn=$('k-csv');csvBtn&&csvBtn.addEventListener('click',async()=>{if(!leads||!leads.size){CORE.toast('لا توجد بيانات');return}const rows=[['company','contact','route','mode','sector','at']].concat(leads.docs.map(x=>{const v=x.data();return [v.company,v.contact,v.route,v.mode,v.sector,v.at]}));
     const csv='﻿'+rows.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\n');const dl=await CORE.downloads();
