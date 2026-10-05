@@ -2945,15 +2945,18 @@ const CFG=window.CIRCLEIGHT_CONFIG||{};
 let backendName='';
 function supaBackend(c){
   const base=String(c.url).replace(/\/+$/,'')+'/rest/v1/';
-  const H={apikey:c.key,Authorization:'Bearer '+c.key,'Content-Type':'application/json',Prefer:'return=representation'};
+  const H={apikey:c.key,Authorization:'Bearer '+c.key,'Content-Type':'application/json'};
+  /* POST uses return=minimal on purpose: returning the inserted row needs SELECT rights,
+     and the leads table is intentionally insert-only (visitor contacts stay unreadable). */
+  const HPOST=Object.assign({},H,{Prefer:'return=minimal'});
   const T=n=>(c.tables&&c.tables[n])||n;
-  async function req(path,opt){const r=await fetch(base+path,Object.assign({headers:H},opt||{}));
+  async function req(path,opt){opt=opt||{};const r=await fetch(base+path,Object.assign({},opt,{headers:opt.headers||H}));
     if(!r.ok){const e=new Error('supabase '+r.status+' '+(await r.text().catch(()=>'')));e.status=r.status;throw e}
     const t=await r.text();return t?JSON.parse(t):null}
   const wrap=row=>({id:String(row.id),data:()=>row.data||{}});
   function coll(name){const tb=T(name);let ord=null,lim=0;
     const api={
-      add:doc=>req(tb,{method:'POST',body:JSON.stringify({at:doc&&doc.at||new Date().toISOString(),data:doc})}),
+      add:doc=>req(tb,{method:'POST',headers:HPOST,body:JSON.stringify({at:doc&&doc.at||new Date().toISOString(),data:doc})}),
       orderBy(f,dir){ord=(f==='at'?'at':'id')+'.'+(dir==='desc'?'desc':'asc');return api},
       limit(n){lim=n;return api},
       async get(){const q=['select=id,data','order='+(ord||'id.asc')].concat(lim?['limit='+lim]:[]).join('&');
